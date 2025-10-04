@@ -1,0 +1,70 @@
+# AI Assistant Rules
+
+Define the rules and guidelines for how the AI assistant should operate in this project.
+
+## Code Style
+- Use UPPER_SNAKE_CASE for constants
+- Keep functions small and focused
+- Use descriptive names for variables and functions
+- Avoid comments and docstrings
+- Avoid using try-except if it only contains logging
+
+## Temporary code rules
+- If you are generating something you were not explicitly asked to, it's a stub
+- Keep stubs as short as possible
+
+## Testing Requirements
+- Write tests before implementation
+- Run all tests in virtual environment
+- Keep tests clean and up-to-date
+- Tests must be in the test/ directory
+
+## Development Workflow
+1. Planning Phase:
+   - Plan code structure before implementation
+   - Consider integration with existing codebase
+   - Plan for error cases and edge conditions
+
+2. Implementation Phase:
+   - Write tests first
+   - Implement solution
+   - Run tests until passing
+   - Remove any debug code
+
+3. Review Phase:
+   - Ensure code follows all style guidelines
+   - Verify all tests pass
+   - Check documentation completeness
+   - Confirm no debug code remains
+
+## Dependencies Management
+- Compare new dependencies with requirements.txt
+- Pass dependencies through class initialization
+- Update requirements.txt when adding dependencies
+
+## Communication
+- Be concise and direct
+- Don't compliment my ideas
+- Ask clarifying questions when requirements are unclear
+
+## File Organization
+- Keep related files together
+- Use clear, descriptive file names
+- Maintain consistent directory structure
+- Separate concerns into different modules
+
+## Security
+- Never hardcode secrets or API keys
+- Use environment variables for configuration
+- Validate all inputs
+- Implement proper authentication and authorization
+
+## Performance
+- Optimize database queries
+- Use appropriate data structures
+- Implement caching where beneficial
+- Monitor and profile performance bottlenecks
+
+## Add your custom rules below:
+
+
