@@ -23,6 +23,10 @@ class Config:
     # CORS Configuration
     CORS_ORIGINS: list = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
     
+    # OpenAI Configuration
+    OPENAI_KEY: str = os.getenv('OPENAI_KEY', '')
+    OPENAI_MODEL: str = os.getenv('OPENAI_MODEL', 'gpt-4')
+    
     # Environment
     ENVIRONMENT: str = os.getenv('ENVIRONMENT', 'development')
     DEBUG: bool = os.getenv('DEBUG', 'false').lower() == 'true'
@@ -35,7 +39,7 @@ class Config:
     
     @classmethod
     def validate_config(cls) -> None:
-        required_vars = ['DB_PASSWORD']
+        required_vars = ['DB_PASSWORD', 'OPENAI_KEY']
         missing_vars = [var for var in required_vars if not getattr(cls, var)]
         if missing_vars:
             raise ValueError(f'Missing required environment variables: {missing_vars}')

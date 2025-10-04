@@ -7,7 +7,7 @@ Define the rules and guidelines for how the AI assistant should operate in this 
 - Keep functions small and focused
 - Use descriptive names for variables and functions
 - Avoid comments and docstrings
-- Avoid using try-except if it only contains logging
+- Avoid using try-except if it only contains logging, prefer fail fast approach
 
 ## Temporary code rules
 - If you are generating something you were not explicitly asked to, it's a stub
