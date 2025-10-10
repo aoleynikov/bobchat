@@ -6,7 +6,7 @@ Define the rules and guidelines for how the AI assistant should operate in this 
 - Use UPPER_SNAKE_CASE for constants
 - Keep functions small and focused
 - Use descriptive names for variables and functions
-- Avoid comments and docstrings
+- Avoid comments and docstrings (Important!)
 - Avoid using try-except if it only contains logging, prefer fail fast approach
 
 ## Temporary code rules

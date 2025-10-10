@@ -22,17 +22,37 @@ class FileProcessor(ABC):
 class FileProcessorFactory:
     def __init__(self, processors: Dict[str, FileProcessor] = None):
         self.processors = processors or {}
+        self.file_type_mapping = {
+            '.epub': 'epub',
+            '.html': 'html',
+            '.htm': 'html',
+            '.txt': 'text',
+            '.jpg': 'image',
+            '.jpeg': 'image',
+            '.png': 'image',
+            '.gif': 'image',
+            '.bmp': 'image'
+        }
     
     def create(self, processor_type: str, chunk_size: int = 8192, **config) -> FileProcessor:
         if processor_type not in self.processors:
             raise ValueError(f'Unknown processor type: {processor_type}')
         
         processor = self.processors[processor_type]
-        # Return a copy with updated config if needed
         if config:
             processor_class = type(processor)
             return processor_class(chunk_size=chunk_size, **config)
         return processor
+    
+    def get_processor_for_file(self, file_path: str) -> FileProcessor:
+        from pathlib import Path
+        file_extension = Path(file_path).suffix.lower()
+        
+        if file_extension not in self.file_type_mapping:
+            raise ValueError(f'Unsupported file type: {file_extension}')
+        
+        processor_type = self.file_type_mapping[file_extension]
+        return self.create(processor_type)
 
 class TextFileProcessor(FileProcessor):
     def process_file(self, file: BinaryIO) -> List[str]:
