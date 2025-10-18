@@ -4,11 +4,13 @@ import sys
 import os
 from pathlib import Path
 from main import file_processor_factory
-from data.storage import DataChunk, repopulate_data_chunks
+from data.storage import DataChunk, repopulate_data_chunks, create_tables
 from data.chunking import chunk_text
 from llm import llm
 from template_manager import TemplateManager
 from rag import RAGProcessor
+
+create_tables()
 
 def ingest_command(data_directory):
     """Handle the ingest command."""

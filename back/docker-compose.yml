@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: pgvector/pgvector:pg15
@@ -10,7 +8,7 @@ services:
     ports:
       - '${DB_PORT:-5432}:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
       - ./init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql
 
   chat-backend:
@@ -19,6 +17,7 @@ services:
       - '${API_PORT:-8000}:8000'
     environment:
       - PYTHONPATH=/app
+      - DATABASE_URL=postgresql://${DB_USER:-chatuser}:${DB_PASSWORD:-chatpass}@postgres:5432/${DB_NAME:-chatdb}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${DB_NAME:-chatdb}
@@ -26,14 +25,27 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-chatpass}
       - API_HOST=0.0.0.0
       - API_PORT=8000
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://chat-frontend:3000}
+      - OPENAI_KEY=${OPENAI_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DEBUG=${DEBUG:-true}
     volumes:
       - .:/app
     depends_on:
       - postgres
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 
-volumes:
-  postgres_data:
+  chat-frontend:
+    build: ../front
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+    environment:
+      - REACT_APP_API_URL=${API_URL:-http://localhost:8000}
+    volumes:
+      - ../front:/app
+      - /app/node_modules
+    depends_on:
+      - chat-backend
+    command: npm start
+

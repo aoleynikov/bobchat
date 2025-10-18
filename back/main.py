@@ -51,7 +51,7 @@ app.add_middleware(
 
 class MessageCreate(BaseModel):
     content: str
-    participant_name: str = "user"
+    role: str = "user"
 
 @app.get('/')
 async def root():
@@ -69,7 +69,7 @@ async def get_messages(db: Session = Depends(get_db)):
 @app.post('/messages')
 async def send_message(message: MessageCreate, db: Session = Depends(get_db)):
     chat = Chat(db)
-    return chat.post_message(message.content, message.participant_name)
+    return chat.post_message(message.content, message.role)
 
 if __name__ == '__main__':
     uvicorn.run(app, host=config.API_HOST, port=config.API_PORT)

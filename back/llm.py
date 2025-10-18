@@ -14,9 +14,21 @@ class LLMWrapper:
             model=self.model,
             messages=[
                 {"role": "user", "content": prompt}
-            ],
-            max_tokens=1000,
-            temperature=0.3
+            ]
+        )
+        return response.choices[0].message.content
+    
+    def generate_with_chat(self, chat) -> str:
+        messages = []
+        for message in chat.get_messages():
+            messages.append({
+                "role": message.role,
+                "content": message.content
+            })
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages
         )
         return response.choices[0].message.content
     

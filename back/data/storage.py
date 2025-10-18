@@ -53,9 +53,9 @@ def repopulate_data_chunks(data_chunks: list):
     new_chunks = []
     for chunk in data_chunks:
         # Use raw SQL with pgvector cosine distance function
+        embedding_str = '[' + ','.join(map(str, chunk.embedding)) + ']'
         result = db.execute(
-            text("SELECT id FROM data_chunks WHERE embedding <=> :embedding < 0.01 LIMIT 1"),
-            {"embedding": chunk.embedding}
+            text(f"SELECT id FROM data_chunks WHERE embedding <=> '{embedding_str}'::vector < 0.01 LIMIT 1")
         ).fetchone()
         
         if not result:
