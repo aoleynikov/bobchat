@@ -30,13 +30,26 @@ class RAGProcessor:
         db.close()
         return chunks
     
-    def process(self, prompt: str) -> str:
-        """Process a prompt through the RAG system and return the answer."""
-        # Get relevant chunks
-        relevant_chunks = self.get_relevant_chunks(prompt, limit=5)
+    def process(self, chat) -> str:
+        """Process a chat through the RAG system with conversation history."""
+        # Get the last 5 messages for conversation history
+        all_messages = chat.get_messages()
+        last_5_messages = all_messages[-5:] if len(all_messages) > 5 else all_messages
         
-        # Create RAG prompt using template manager
-        rag_prompt = self.template_manager.render_rag_prompt(prompt, relevant_chunks)
+        # Get the latest user message
+        latest_message = last_5_messages[-1] if last_5_messages else None
+        if not latest_message or latest_message['role'] != 'user':
+            return "I need a user message to respond to."
+        
+        # Get relevant chunks for the latest message
+        relevant_chunks = self.get_relevant_chunks(latest_message['content'], limit=5)
+        
+        # Create RAG prompt with conversation history
+        rag_prompt = self.template_manager.render_rag_prompt(
+            latest_message['content'], 
+            relevant_chunks, 
+            last_5_messages[:-1]  # Pass messages directly, excluding the latest
+        )
         
         # Generate answer using LLM
         answer = self.llm.generate(rag_prompt)

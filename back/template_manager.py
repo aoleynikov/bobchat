@@ -6,6 +6,10 @@ class TemplateManager:
         self.templates_dir = Path(templates_dir)
         self.env = Environment(loader=FileSystemLoader(self.templates_dir))
     
-    def render_rag_prompt(self, question: str, chunks: list) -> str:
+    def render_rag_prompt(self, question: str, chunks: list, messages: list = []) -> str:
         template = self.env.get_template("rag_prompt.j2")
-        return template.render(question=question, chunks=chunks)
+        return template.render(
+            question=question, 
+            chunks=chunks, 
+            messages=messages
+        )

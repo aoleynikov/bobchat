@@ -36,8 +36,8 @@ chat = Chat()
 template_manager = TemplateManager()
 rag_processor = RAGProcessor(llm, template_manager)
 
-def process_rag_background(message_content: str):
-    rag_response = rag_processor.process(message_content)
+def process_rag_background():
+    rag_response = rag_processor.process(chat)
     chat.post_message(rag_response, "assistant")
     chat.save()
 
@@ -57,7 +57,7 @@ async def create_message(message: MessageCreate):
         role=message.role
     )
     
-    thread = threading.Thread(target=process_rag_background, args=(message.content,))
+    thread = threading.Thread(target=process_rag_background)
     thread.daemon = True
     thread.start()
     
