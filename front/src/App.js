@@ -6,7 +6,6 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [username, setUsername] = useState('');
   const [isPolling, setIsPolling] = useState(false);
   const pollingRef = useRef(null);
   const lastMessageCountRef = useRef(0);
@@ -19,7 +18,7 @@ function App() {
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !username.trim()) return;
+    if (!newMessage.trim()) return;
 
     const response = await fetch(`${API_BASE_URL}/messages`, {
       method: 'POST',
@@ -28,23 +27,28 @@ function App() {
       },
       body: JSON.stringify({
         content: newMessage,
-        participant_name: username,
+        role: 'user',
       }),
     });
     const data = await response.json();
+
+    lastMessageCountRef.current = messages.length + 1;
     setMessages(prev => [...prev, data]);
     setNewMessage('');
 
     setIsPolling(true);
-    lastMessageCountRef.current = messages.length + 1;
   };
 
   const startPolling = () => {
     if (pollingRef.current) return;
 
+    console.log('Starting polling for new messages...');
     pollingRef.current = setInterval(async () => {
+      console.log('Polling for messages...');
       const currentMessages = await fetchMessages();
+      console.log(`Current messages: ${currentMessages.length}, Expected: ${lastMessageCountRef.current}`);
       if (currentMessages.length > lastMessageCountRef.current) {
+        console.log('New message detected, stopping polling');
         setIsPolling(false);
         clearInterval(pollingRef.current);
         pollingRef.current = null;
@@ -58,6 +62,12 @@ function App() {
       pollingRef.current = null;
     }
     setIsPolling(false);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
   };
 
   useEffect(() => {
@@ -77,30 +87,16 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Chat App</h1>
-        {!username && (
-          <div>
-            <input
-              type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && username.trim() && setUsername(username.trim())}
-            />
-          </div>
-        )}
+        <h1>Bobchat</h1>
       </header>
 
       <div className="chat-container">
         <div className="chat-area">
-          <div className="chat-header">
-            <h3>General Chat</h3>
-          </div>
           <div className="messages">
             {messages.map((message) => (
               <div key={message.id} className="message-block">
                 <div className="message-header">
-                  <span className="participant">{message.participant_name}</span>
+                  <span className="participant">{message.role}</span>
                   <span className="timestamp">{new Date(message.timestamp).toLocaleTimeString()}</span>
                 </div>
                 <div className="message-content">{message.content}</div>
@@ -113,7 +109,7 @@ function App() {
               placeholder="Type a message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+              onKeyPress={handleKeyPress}
             />
             <button onClick={sendMessage}>Send</button>
           </div>
