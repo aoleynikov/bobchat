@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -6,16 +6,13 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [isPolling, setIsPolling] = useState(false);
-  const pollingRef = useRef(null);
-  const lastMessageCountRef = useRef(0);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     const response = await fetch(`${API_BASE_URL}/messages`);
     const data = await response.json();
     setMessages(data);
     return data;
-  };
+  }, []);
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -32,37 +29,16 @@ function App() {
     });
     const data = await response.json();
 
-    lastMessageCountRef.current = messages.length + 1;
-    setMessages(prev => [...prev, data]);
     setNewMessage('');
-
-    setIsPolling(true);
   };
 
-  const startPolling = () => {
-    if (pollingRef.current) return;
-
-    console.log('Starting polling for new messages...');
-    pollingRef.current = setInterval(async () => {
-      console.log('Polling for messages...');
-      const currentMessages = await fetchMessages();
-      console.log(`Current messages: ${currentMessages.length}, Expected: ${lastMessageCountRef.current}`);
-      if (currentMessages.length > lastMessageCountRef.current) {
-        console.log('New message detected, stopping polling');
-        setIsPolling(false);
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-      }
-    }, 5000);
+  const clearMessages = async () => {
+    await fetch(`${API_BASE_URL}/messages`, {
+      method: 'DELETE',
+    });
+    fetchMessages();
   };
 
-  const stopPolling = () => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-      pollingRef.current = null;
-    }
-    setIsPolling(false);
-  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -72,17 +48,13 @@ function App() {
 
   useEffect(() => {
     fetchMessages();
-  }, []);
 
-  useEffect(() => {
-    if (isPolling) {
-      startPolling();
-    } else {
-      stopPolling();
-    }
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 5000);
 
-    return () => stopPolling();
-  }, [isPolling]);
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
 
   return (
     <div className="App">
@@ -112,6 +84,7 @@ function App() {
               onKeyPress={handleKeyPress}
             />
             <button onClick={sendMessage}>Send</button>
+            <button onClick={clearMessages} style={{ marginLeft: '10px', backgroundColor: '#dc3545', color: 'white' }}>Clear</button>
           </div>
         </div>
       </div>

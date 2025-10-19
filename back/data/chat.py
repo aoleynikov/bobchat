@@ -55,3 +55,9 @@ class Chat:
         self.messages = chat_data.get('messages', [])
         self.participants = chat_data.get('participants', {})
         self.next_message_id = chat_data.get('next_message_id', 1)
+    
+    def clear_messages(self):
+        self.messages = []
+        self.participants = {}
+        self.next_message_id = 1
+        self.save()

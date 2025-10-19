@@ -63,6 +63,11 @@ async def create_message(message: MessageCreate):
     
     return new_message
 
+@app.delete("/messages")
+async def clear_messages():
+    chat.clear_messages()
+    return {"message": "All messages cleared"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
